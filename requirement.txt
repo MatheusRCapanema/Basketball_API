@@ -7,3 +7,4 @@ Flask-Migrate
 flask-bcrypt
 mysqlclient
 pymysql
+Flask-Mail

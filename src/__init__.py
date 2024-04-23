@@ -2,6 +2,7 @@ from flask import Flask
 import os
 
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail
 
 from src.config.config import Config
 from dotenv import load_dotenv
@@ -28,6 +29,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI_
 
 # To specify to track modifications of objects and emit signals
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = os.environ.get("SQLALCHEMY_TRACK_MODIFICATIONS")
+
+app.config['MAIL_SERVER'] = 'sandbox.smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 2525
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+mail = Mail(app)
 
 # sql alchemy instance
 db = SQLAlchemy(app)
