@@ -15,7 +15,7 @@ users = Blueprint("users", __name__)
 def handle_signup():
     try:
         data = request.get_json()
-        if "firstname" in data and "lastname" and data and "email" and "password" in data:
+        if "firstname" in data and "lastname" in data and "email" in data and "password" in data:
             user = User.query.filter_by(email=data["email"]).first()
             if not user:
                 user_obj = User(
@@ -24,41 +24,25 @@ def handle_signup():
                     lastname=data["lastname"],
                     password=bcrypt.generate_password_hash(data["password"]).decode('utf-8')
                 )
-
                 db.session.add(user_obj)
                 db.session.commit()
-
-                payload = {
-                    'iat': datetime.now(timezone.utc),
-                    'user_id': str(user_obj.id).replace('-', ""),
-                    'firstname': user_obj.firstname,
-                    'lastname': user_obj.lastname,
-                    'email': user_obj.email,
-                }
-                token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
                 return Response(
                     response=json.dumps({
-                        'status': 'Sucesso',
-                        "message": "Usuario registrado com sucesso",
-                        "token": token
+                        'status': 'success',
+                        "message": "User registered successfully"
                     }),
                     status=201,
                     mimetype='application/json'
                 )
             else:
-                print(user)
                 return Response(
-                    response=json.dumps({'status': "Falha",
-                                         "message": "User Parameters Firstname, Lastname, Email and Password are "
-                                                    "required"}),
+                    response=json.dumps({'status': "error", "message": "Email already registered"}),
                     status=400,
                     mimetype='application/json'
                 )
     except Exception as e:
         return Response(
-            response=json.dumps({'status': "failed",
-                                 "message": "Error Occured",
-                                 "error": str(e)}),
+            response=json.dumps({'status': "error", "message": "An error occurred", "error": str(e)}),
             status=500,
             mimetype='application/json'
         )
@@ -67,54 +51,36 @@ def handle_signup():
 @users.route('/signin', methods=["POST"])
 def handle_login():
     try:
-        data = request.json
-        if "email" and "password" in data:
+        data = request.get_json()
+        if "email" in data and "password" in data:
             user = User.query.filter_by(email=data["email"]).first()
-            if user:
-
-                if bcrypt.check_password_hash(user.password, data["password"]):
-
-                    payload = {
-                        'iat': datetime.now(timezone.utc),
-                        'user_id': str(user.id).replace('-', ""),
-                        'firstname': user.firstname,
-                        'lastname': user.lastname,
-                        'email': user.email,
-                    }
-                    token = jwt.encode(payload, os.getenv('SECRET_KEY'), algorithm='HS256')
-                    return Response(
-                        response=json.dumps({'status': "success",
-                                             "message": "User Sign In Successful",
-                                             "token": token}),
-                        status=200,
-                        mimetype='application/json'
-                    )
-
-                else:
-                    return Response(
-                        response=json.dumps({'status': "failed", "message": "User Password Mistmatched"}),
-                        status=401,
-                        mimetype='application/json'
-                    )
-
+            if user and bcrypt.check_password_hash(user.password, data["password"]):
+                return Response(
+                    response=json.dumps({'status': "success", "message": "User Sign In Successful"}),
+                    status=200,
+                    mimetype='application/json'
+                )
+            elif user:
+                return Response(
+                    response=json.dumps({'status': "error", "message": "Incorrect password"}),
+                    status=401,
+                    mimetype='application/json'
+                )
             else:
                 return Response(
-                    response=json.dumps({'status': "failed", "message": "User Record doesn't exist, kindly register"}),
+                    response=json.dumps({'status': "error", "message": "User not found, please register"}),
                     status=404,
                     mimetype='application/json'
                 )
         else:
             return Response(
-                response=json.dumps({'status': "failed", "message": "User Parameters Email and Password are required"}),
+                response=json.dumps({'status': "error", "message": "Both email and password are required"}),
                 status=400,
                 mimetype='application/json'
             )
-
     except Exception as e:
         return Response(
-            response=json.dumps({'status': "failed",
-                                 "message": "Error Occured",
-                                 "error": str(e)}),
+            response=json.dumps({'status': "error", "message": "An error occurred", "error": str(e)}),
             status=500,
             mimetype='application/json'
         )
@@ -140,7 +106,7 @@ def forgot_password():
                 body = f'Para redefinir sua senha, clique no seguinte link: {link}'
                 sender = 'hi@demomailtrap.com'
 
-                msg = Message(subject, recipients=recipients, body=body, sender = sender)
+                msg = Message(subject, recipients=recipients, body=body, sender=sender)
                 mail.send(msg)
 
                 return Response(
