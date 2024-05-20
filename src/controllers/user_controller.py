@@ -1,7 +1,5 @@
 import os
-from datetime import datetime, timezone, timedelta
 
-import jwt
 from flask import request, Response, json, Blueprint, url_for
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature

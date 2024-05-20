@@ -8,12 +8,16 @@ from src.config.config import Config
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_cors import CORS
+
 
 # loading environment variables
 load_dotenv()
 
 # declaring flask application
 app = Flask(__name__)
+
+CORS(app)
 
 # calling the dev configuration
 config = Config().dev_config
