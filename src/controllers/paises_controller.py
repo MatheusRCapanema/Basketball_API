@@ -1,19 +1,19 @@
 import requests
-from flask import Blueprint, jsonify
+from flask import request, Response, json, Blueprint, jsonify
+
+from src import db
+from src.models.country_model import Country
+
 
 countries = Blueprint('countries', __name__)
 
 
-@countries.route('/country/<country_id>', methods=['GET'])
-def get_country(country_id):
-    headers = {
-        'Authorization': '1234567890'
-    }
+@countries.route('/list', methods=['GET'])
+def listar_paises():
+    try:
+        countries = Country.query.all()
+        country_names = [country.name for country in countries]
+        return jsonify({'status': 'success', 'countries': country_names}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': 'An error occurred', 'error': str(e)}), 500
 
-    response = requests.get(
-        f'https://virtserver.swaggerhub.com/PI_IESB_2024/API_Olimpiadas/0.0.2/paises?_id={country_id}', headers=headers)
-
-    if response.status_code == 200:
-        return jsonify(response.json()), 200
-    else:
-        return jsonify({'error': 'Não foi possível obter informações do país'}), response.status_code
