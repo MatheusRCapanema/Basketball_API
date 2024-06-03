@@ -124,7 +124,7 @@ def list_matches():
                 'team_b': match.team_b.name,
                 'stage': match.stage,
                 'status': match.status
-                'referee': match.referee_id
+                'referee_id': match.referee_id
             })
 
         return jsonify({
