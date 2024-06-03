@@ -54,7 +54,7 @@ def handle_login():
             user = User.query.filter_by(email=data["email"]).first()
             if user and bcrypt.check_password_hash(user.password, data["password"]):
                 return Response(
-                    response=json.dumps({'status': "success", "message": "User Sign In Successful"}),
+                    response=json.dumps({'status': "success", "message": "User Sign In Successful", "user_id": user.id}),
                     status=200,
                     mimetype='application/json'
                 )
