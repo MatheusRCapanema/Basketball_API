@@ -12,8 +12,8 @@ countries = Blueprint('countries', __name__)
 def listar_paises():
     try:
         countries = Country.query.all()
-        country_names = [country.name for country in countries]
-        return jsonify({'status': 'success', 'countries': country_names}), 200
+        country_list = [{'id': country.id, 'name': country.name} for country in countries]
+        return jsonify({'status': 'success', 'countries': country_list}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': 'An error occurred', 'error': str(e)}), 500
 

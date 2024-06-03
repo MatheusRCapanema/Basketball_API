@@ -12,7 +12,7 @@ locations = Blueprint('locations', __name__)
 def listar_paises():
     try:
         locations = Location.query.all()
-        location_names = [location.stadium_name for location in locations]
-        return jsonify({'status': 'success', 'countries': location_names}), 200
+        location_names = [{'id': location.id, 'name': location.stadium_name} for location in locations]
+        return jsonify({'status': 'success', 'locations': location_names}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': 'An error occurred', 'error': str(e)}), 500
