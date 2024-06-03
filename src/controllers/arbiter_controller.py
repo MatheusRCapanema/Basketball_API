@@ -139,15 +139,15 @@ def marcar_ponto():
                 'id': match.team_a.id,
                 'name': match.team_a.country.iso_code,
                 'score': match.score_team_a,  # Placar da equipe A
-                'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number,
-                             'points': player.points} for player in team_a_players]
+                'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number}
+                            for player in team_a_players]
             },
             'team_b': {
                 'id': match.team_b.id,
                 'name': match.team_b.country.iso_code,
                 'score': match.score_team_b,  # Placar da equipe B
-                'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number,
-                             'points': player.points} for player in team_b_players]
+                'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number}
+                            for player in team_b_players]
             },
             'stage': match.stage,
             'status': match.status,
