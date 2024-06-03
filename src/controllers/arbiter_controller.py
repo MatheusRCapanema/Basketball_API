@@ -52,20 +52,21 @@ def iniciar_partida(match_id):
         team_b_players = Player.query.filter_by(team_id=match.team_b_id).all()
 
         # Construir a resposta com detalhes da partida e jogadores
+
         response_data = {
             'id': match.id,
             'date': match.date.strftime('%Y-%m-%d %H:%M:%S'),
             'location': match.location.stadium_name,
             'team_a': {
                 'id': match.team_a.id,
-                'name': match.team_a.name,
+                'name': match.team_a.country.iso_code,
                 'score': match.score_team_a,  # Placar da equipe A
                 'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number}
                             for player in team_a_players]
             },
             'team_b': {
                 'id': match.team_b.id,
-                'name': match.team_b.name,
+                'name': match.team_b.country.iso_code,
                 'score': match.score_team_b,  # Placar da equipe B
                 'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number}
                             for player in team_b_players]
@@ -74,7 +75,6 @@ def iniciar_partida(match_id):
             'status': match.status,
             'referee': match.referee_id
         }
-
         return Response(
             response=json.dumps({'status': 'success', 'match': response_data}),
             status=200,
@@ -137,14 +137,14 @@ def marcar_ponto():
             'location': match.location.stadium_name,
             'team_a': {
                 'id': match.team_a.id,
-                'name': match.team_a.name,
+                'name': match.team_a.country.iso_code,
                 'score': match.score_team_a,  # Placar da equipe A
                 'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number,
                              'points': player.points} for player in team_a_players]
             },
             'team_b': {
                 'id': match.team_b.id,
-                'name': match.team_b.name,
+                'name': match.team_b.country.iso_code,
                 'score': match.score_team_b,  # Placar da equipe B
                 'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number,
                              'points': player.points} for player in team_b_players]
