@@ -43,7 +43,7 @@ def iniciar_partida(match_id):
                 )
 
         # Atualizar o status da partida para "Em andamento" e definir o árbitro
-        match.status = 'Em andamento'
+        match.status = 'On Going'
         match.referee_id = referee_id
         db.session.commit()
 
@@ -195,6 +195,81 @@ def marcar_falta():
 
         return Response(
             response=json.dumps({'status': 'success', 'message': 'Fault recorded successfully'}),
+            status=200,
+            mimetype='application/json'
+        )
+    except Exception as e:
+        return Response(
+            response=json.dumps({'status': 'error', 'message': 'An error occurred', 'error': str(e)}),
+            status=500,
+            mimetype='application/json'
+        )
+
+
+@arbiter.route('/end_match/<int:match_id>', methods=['POST'])
+def encerrar_partida(match_id):
+    try:
+        data = request.get_json()
+        referee_id = data.get('referee_id')
+
+        if not referee_id:
+            return Response(
+                response=json.dumps({'status': 'error', 'message': 'Referee ID is required'}),
+                status=400,
+                mimetype='application/json'
+            )
+
+        # Buscar a partida pelo ID
+        match = Match.query.get(match_id)
+        if not match:
+            return Response(
+                response=json.dumps({'status': 'error', 'message': 'Match not found'}),
+                status=404,
+                mimetype='application/json'
+            )
+
+        # Verificar se o árbitro que está tentando encerrar a partida é o mesmo que iniciou
+        if match.referee_id != referee_id:
+            return Response(
+                response=json.dumps(
+                    {'status': 'error', 'message': 'This match is being refereed by another referee.'}),
+                status=403,
+                mimetype='application/json'
+            )
+
+        # Atualizar o status da partida para "Finished"
+        match.status = 'Finished'
+        db.session.commit()
+
+        # Construir a resposta com detalhes da partida
+        team_a_players = Player.query.filter_by(team_id=match.team_a_id).all()
+        team_b_players = Player.query.filter_by(team_id=match.team_b_id).all()
+
+        response_data = {
+            'id': match.id,
+            'date': match.date.strftime('%Y-%m-%d %H:%M:%S'),
+            'location': match.location.stadium_name,
+            'team_a': {
+                'id': match.team_a.id,
+                'iso_code': match.team_a.country.iso_code,
+                'score': match.score_team_a,  # Placar da equipe A
+                'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number,
+                             'points': player.points} for player in team_a_players]
+            },
+            'team_b': {
+                'id': match.team_b.id,
+                'iso_code': match.team_b.country.iso_code,
+                'score': match.score_team_b,  # Placar da equipe B
+                'players': [{'id': player.id, 'name': player.name, 'position': player.position, 'number': player.number,
+                             'points': player.points} for player in team_b_players]
+            },
+            'stage': match.stage,
+            'status': match.status,
+            'referee': match.referee_id
+        }
+
+        return Response(
+            response=json.dumps({'status': 'success', 'match': response_data}),
             status=200,
             mimetype='application/json'
         )
