@@ -87,44 +87,6 @@ def handle_login():
 s = URLSafeTimedSerializer(os.getenv('SECRET_KEY'))
 
 
-@users.route('/signin', methods=["POST"])
-def handle_login():
-    try:
-        data = request.get_json()
-        if "email" in data and "password" in data:
-            user = User.query.filter_by(email=data["email"]).first()
-            if user and bcrypt.check_password_hash(user.password, data["password"]):
-                return Response(
-                    response=json.dumps({'status': "success", "message": "User Sign In Successful", "user_id": user.id}),
-                    status=200,
-                    mimetype='application/json'
-                )
-            elif user:
-                return Response(
-                    response=json.dumps({'status': "error", "message": "Incorrect password"}),
-                    status=401,
-                    mimetype='application/json'
-                )
-            else:
-                return Response(
-                    response=json.dumps({'status': "error", "message": "User not found, please register"}),
-                    status=404,
-                    mimetype='application/json'
-                )
-        else:
-            return Response(
-                response=json.dumps({'status': "error", "message": "Both email and password are required"}),
-                status=400,
-                mimetype='application/json'
-            )
-    except Exception as e:
-        return Response(
-            response=json.dumps({'status': "error", "message": "An error occurred", "error": str(e)}),
-            status=500,
-            mimetype='application/json'
-        )
-
-
 @users.route('/reset-password/<token>', methods=["POST"])
 def reset_password(token):
     try:
