@@ -108,36 +108,31 @@ def create_match():
 @matches.route('/list', methods=['GET'])
 def list_matches():
     try:
-
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 10, type=int)
-
-        matches_query = Match.query.all()
-
+        matches = Match.query.all()
         matches_list = []
-        for match in matches_query:
+        for match in matches:
             matches_list.append({
                 'id': match.id,
                 'date': match.date.strftime('%Y-%m-%d %H:%M:%S'),
                 'location': match.location.stadium_name,
-                'team_a': match.team_a.name,
-                'team_b': match.team_b.name,
+                'team_a': {
+                    'id': match.team_a.id,
+                    'iso_code': match.team_a.country.iso_code,
+                    'score': match.score_team_a,
+                },
+                'team_b': {
+                    'id': match.team_b.id,
+                    'iso_code': match.team_b.country.iso_code,
+                    'score': match.score_team_b,
+                },
                 'stage': match.stage,
-                'status': match.status
-                'referee_id': match.referee_id
+                'status': match.status,
+                'referee_id': match.referee_id  # Add referee ID here
             })
 
-        return jsonify({
-            'status': 'success',
-            'matches': matches_list,
-        }), 200
-
+        return jsonify({'status': 'success', 'matches': matches_list}), 200
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': 'An error occurred',
-            'error': str(e)
-        }), 500
+        return jsonify({'status': 'error', 'message': 'An error occurred', 'error': str(e)}), 500
 
 
 @matches.route('/delete/<int:match_id>', methods=['DELETE'])
